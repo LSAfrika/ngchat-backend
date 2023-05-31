@@ -190,7 +190,9 @@ exports.sociallogin=async (req,res)=>{
 
 exports.totalusers=async(req,res)=>{
   try {
-    const totalusers = await await usermodel.find().count()
+
+    const{userid}=req.body
+    const totalusers = await await usermodel.find().find({_id:{$ne:userid}}).count()
     console.log('total users:',totalusers);
     res.send({totalusers})
   } catch (error) {
@@ -206,7 +208,7 @@ exports.getusers=async(req,res)=>{
     const pagination=req.query.pagination
     const datasize=5
     console.log('current pagination: ',pagination);
-    // const{userid}=req.body
+    const{userid}=req.body
     const search=req.query.search ? {$or:[
       {username:{$regex:req.query.search,$options:'i'}},
       {email:{$regex:req.query.search,$options:'i'}}
@@ -214,7 +216,7 @@ exports.getusers=async(req,res)=>{
     ]}:{}
 //todo filter logedin user .find({_id:{$ne:userid}})
     
-    const users = await await usermodel.find(search)
+    const users = await await (await usermodel.find(search)).find({_id:{$ne:userid}})
     .select('username profileimg status lastseen')
     .sort({createdAt:'desc'})
     .limit(pagination*datasize)

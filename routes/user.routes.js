@@ -10,7 +10,7 @@ router.post('/socialogin',sociallogin)
 router.get('/allusers',authentication,getusers)
 router.post('/refresh',refreshtoken)
 router.get('/singleuser/:_id',getuser)
-router.get('/count',totalusers)
+router.get('/count',authentication,totalusers)
 router.patch('/updateuser/',authentication,updateuser)
 
 
