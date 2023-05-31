@@ -192,7 +192,12 @@ exports.totalusers=async(req,res)=>{
   try {
 
     const{userid}=req.body
-    const totalusers = await await usermodel.find().find({_id:{$ne:userid}}).count()
+    const search=req.query.search ? {$or:[
+      {username:{$regex:req.query.search,$options:'i'}},
+      {email:{$regex:req.query.search,$options:'i'}}
+
+    ]}:{}
+    const totalusers = await await usermodel.find(search).find({_id:{$ne:userid}}).count()
     console.log('total users:',totalusers);
     res.send({totalusers})
   } catch (error) {
