@@ -8,7 +8,7 @@ require('dotenv').config()
 exports.register=async(req,res)=>{
 
     try {
-        const {email,phone,username,password,repassword}=req.body
+        const {email,username,password,reenterpassword}=req.body
 
 
 
@@ -16,7 +16,7 @@ exports.register=async(req,res)=>{
         if(finduser){
           return  res.status(409).send({message: 'email already exists'})
         }
-        if(password!==repassword){
+        if(password!==reenterpassword){
             return res.status(500).send('password are not similar')
         }
 
@@ -26,7 +26,7 @@ exports.register=async(req,res)=>{
        const newuser = new usermodel({
 
         email,
-        phone,username,
+        username,
         password:hash
 
     })
@@ -34,19 +34,31 @@ exports.register=async(req,res)=>{
     const newuserresult = await newuser.save()
 
   const userresponse={
-        id:newuserresult._id,
+        _id:newuserresult._id,
        email: newuserresult.email,
-       phone:newuserresult.phone,
+       profileimg:newuserresult.profileimg,
        username:newuserresult.username
     }
 
-    res.status(200).send({message:'user created successfully',...userresponse})
+    const token=await JWT.sign(userresponse,process.env.HASHKEY,{
+      expiresIn: '1w' ,issuer:'http://localhost:3000'
+   })
+
+   const refreshtoken=JWT.sign({  _id:userresponse._id},process.env.REFRESHTOKEN,{
+     expiresIn:'1m'
+   })
+
+      return res.send({message:`welcome ${userresponse.username}`,token,refreshtoken})
+
+
+    //res.status(200).send({message:'user created successfully',...userresponse})
 
 
 
        // next()
     } catch (error) {
 
+      console.log('registering new user error:\n',error)
         return res.status(500).send({errormessage:error.message,servermessage:'an error occured'})
 
 
@@ -72,18 +84,30 @@ exports.login=async (req,res)=>{
          }
 
          const payload ={
-             id:finduser._id,
+             _id:finduser._id,
              email:finduser.email,
              username:finduser.username,
-             exp: Date.now()  + (60 * 60*1000)
+             profileimg:finduser.profileimg,
+             
+            
          }
 
-         console.log(payload.exp,'-',);
-         console.log(Date.now())
+        //  console.log(payload.exp,'-',);
+        //  console.log(Date.now())
 
          // create env key
-       const sigintoken=  JWT.sign(payload,process.env.HASHKEY)
-          res.status(200).send({sigintoken})
+      //  const sigintoken=  JWT.sign(payload,process.env.HASHKEY)
+      //     res.status(200).send({sigintoken})
+
+          const token=await JWT.sign(payload,process.env.HASHKEY,{
+            expiresIn: '1w' ,issuer:'http://localhost:3000'
+         })
+      
+         const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+           expiresIn:'1m',issuer:'http://localhost:3000'
+         })
+      
+            return res.send({message:`welcome back ${payload.username}`,token,refreshtoken})
 
 
     } catch (error) {
