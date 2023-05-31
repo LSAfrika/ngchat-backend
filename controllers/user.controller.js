@@ -202,7 +202,7 @@ exports.totalusers=async(req,res)=>{
     res.send({totalusers})
   } catch (error) {
 
-    console.log('error fetching total count');
+    console.log('error fetching total count ');
     res.status(500).send({errormessage:'failed to fetch total count '})
     
   }
@@ -222,7 +222,7 @@ exports.getusers=async(req,res)=>{
 //todo filter logedin user .find({_id:{$ne:userid}})
     
     const users = await usermodel.find(search).find({_id:{$ne:userid}})
-    .select('username profileimg  ')
+    .select('username profileimg online ')
     .sort({createdAt:'desc'})
     .limit(pagination*datasize)
       return res.send({users})

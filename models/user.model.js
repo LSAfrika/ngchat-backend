@@ -9,7 +9,7 @@ const userschema = new mongoose.Schema({
     firebaseuniqueid:{type:String},
     profileimg:{type:String,required:true,default:'http://localhost:3000/default/profile.png' },
      status:{type:String,required:true,default:'hello there am using NG Chat'},
-    online:{type:Boolean,required:true,default:false},
+    online:{type:Boolean,required:true,default:true},
     lastseen:{type:Number,required:true,default:Date.now()}
 
 },{timestamps:true}
