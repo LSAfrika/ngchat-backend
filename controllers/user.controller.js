@@ -37,7 +37,8 @@ exports.register=async(req,res)=>{
         _id:newuserresult._id,
        email: newuserresult.email,
        profileimg:newuserresult.profileimg,
-       username:newuserresult.username
+       username:newuserresult.username,
+       status:newuserresult.status
     }
 
     const token=await JWT.sign(userresponse,process.env.HASHKEY,{
@@ -88,6 +89,7 @@ exports.login=async (req,res)=>{
              email:finduser.email,
              username:finduser.username,
              profileimg:finduser.profileimg,
+             status:finduser.status
              
             
          }
@@ -186,17 +188,36 @@ exports.sociallogin=async (req,res)=>{
 
 }
 
+exports.totalusers=async(req,res)=>{
+  try {
+    const totalusers = await await usermodel.find().count()
+    console.log('total users:',totalusers);
+    res.send({totalusers})
+  } catch (error) {
+
+    console.log('error fetching total count');
+    res.status(500).send({errormessage:'failed to fetch total count '})
+    
+  }
+}
 exports.getusers=async(req,res)=>{
 
   try {
-    const{userid}=req.body
+    const pagination=req.query.pagination
+    const datasize=5
+    console.log('current pagination: ',pagination);
+    // const{userid}=req.body
     const search=req.query.search ? {$or:[
       {username:{$regex:req.query.search,$options:'i'}},
       {email:{$regex:req.query.search,$options:'i'}}
 
     ]}:{}
 //todo filter logedin user .find({_id:{$ne:userid}})
-    const users = await await usermodel.find(search).select('username profileimg status lastseen')
+    
+    const users = await await usermodel.find(search)
+    .select('username profileimg status lastseen')
+    .sort({createdAt:'desc'})
+    .limit(pagination*datasize)
       return res.send({users})
 
     // if(search!=undefined&&search.length==0){
