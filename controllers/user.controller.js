@@ -193,8 +193,8 @@ exports.totalusers=async(req,res)=>{
 
     const{userid}=req.body
     const search=req.query.search ? {$or:[
-      {username:{$regex:req.query.search,$options:'i'}},
-      {email:{$regex:req.query.search,$options:'i'}}
+      {username:{$regex:req.query.search,$options:'i'}}
+    //todo removed serach by email {email:{$regex:req.query.search,$options:'i'}}
 
     ]}:{}
     const totalusers = await await usermodel.find(search).find({_id:{$ne:userid}}).count()
@@ -215,10 +215,11 @@ exports.getusers=async(req,res)=>{
     console.log('current pagination: ',pagination);
     const{userid}=req.body
     const search=req.query.search ? {$or:[
-      {username:{$regex:req.query.search,$options:'i'}},
-      {email:{$regex:req.query.search,$options:'i'}}
+      {username:{$regex:req.query.search,$options:'i'}}
+      
 
     ]}:{}
+    //todo removed serach by email {email:{$regex:req.query.search,$options:'i'}}
 //todo filter logedin user .find({_id:{$ne:userid}})
     
     const users = await usermodel.find(search).find({_id:{$ne:userid}})

@@ -5,7 +5,7 @@ module.exports = (server)=> {
 
   async function newusermiddlware(socket,next){
 
-      // console.log('handshake: \n',socket.handshake.query);
+       console.log('handshake: \n',socket.handshake.query);
       if (socket.handshake.query && socket.handshake.query.uid){
       //   console.log('current uid', socket.handshake.query.uid);
           if (socket.handshake.query.uid===undefined ||socket.handshake.query.uid===''){
