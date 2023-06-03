@@ -50,9 +50,9 @@ module.exports = async(server)=> {
 sendmessage(socket)
 
 usernotifications(socket)
- disconnect(socket,onlineusers) 
+disconnect(socket,onlineusers) 
 
-
+logout(socket)
 
 
 
@@ -83,15 +83,25 @@ const useroniline=(socket)=>{
   
   
       console.log('index of leaving user:',indexlogedofuser);
-      const useronline=  await usermodel.findById(onlineusers[indexlogedofuser].uid)
-      useronline.online=false
-      useronline.lastseen=Date.now()
-      await useronline.save()
+      const useroffline=  await usermodel.findById(onlineusers[indexlogedofuser].uid)
+      useroffline.online=false
+      useroffline.lastseen=Date.now()
+      await useroffline.save()
   
       onlineusers.splice(indexlogedofuser,1)
       console.log('current users:',onlineusers);
+      return socket.emit('logged_off',{user:useroffline})
     });
   
+  }
+
+  const logout =(socket)=>{
+    socket.on('logout',(message)=>{
+      console.log('user has logedout:\n',message);
+
+      socket.emit('logoutresponse',{message:'user has loged out'})
+    // console.log(onlineusers)
+    })
   }
 }
 

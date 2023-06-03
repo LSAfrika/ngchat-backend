@@ -239,7 +239,7 @@ exports.getuser=async(req,res)=>{
 
   const {_id}=req.params
   console.log(_id);
-  const user = await usermodel.findById(_id).select('username profileimg status lastseen')
+  const user = await usermodel.findById(_id).select('username profileimg status lastseen online')
   res.send({message:'register route working',user})
 }
 
