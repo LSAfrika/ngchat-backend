@@ -1,12 +1,14 @@
 const {usermodel}=require('../models/user.model')
+// const{disconnect}=require('./')
+// const {disconnect}=require('./io.server')
 
-module.exports = (server)=> {
+module.exports = async(server)=> {
 
 
   async function newusermiddlware(socket,next){
 
-       console.log('handshake: \n',socket.handshake.query);
-      if (socket.handshake.query && socket.handshake.query.uid){
+    if (socket.handshake.query && socket.handshake.query.uid){
+        console.log('handshake: \n',socket.handshake.query.uid);
       //   console.log('current uid', socket.handshake.query.uid);
           if (socket.handshake.query.uid===undefined ||socket.handshake.query.uid===''){
               console.log('missing uid');
@@ -41,14 +43,14 @@ module.exports = (server)=> {
 
 
 
-  io.use(newusermiddlware).on("connection", (socket) => {
+  io.use(newusermiddlware).on("connection", async(socket) => {
 
     // console.log('new connection from ',socket.handshake.query.uid);
 
 sendmessage(socket)
 
 usernotifications(socket)
-// disconnect(socket)
+ disconnect(socket,onlineusers) 
 
 
 
@@ -59,13 +61,7 @@ usernotifications(socket)
   });
 
 
-  const disconnect=(socket)=>{
-
-    socket.on("disconnect", (reason) => {
-      console.log('user disconnected',reason);
-    });
-
-  }
+ 
 
 const useroniline=(socket)=>{
 
@@ -79,4 +75,23 @@ const useroniline=(socket)=>{
   }
 
 
+  const disconnect =(socket,onlineusers)=>{
+  
+    socket.on("disconnect", async(reason) => {
+      console.log('user disconnected:',reason);
+      const indexlogedofuser= onlineusers.map(user=>user.soketid).indexOf(socket.id)
+  
+  
+      console.log('index of leaving user:',indexlogedofuser);
+      const useronline=  await usermodel.findById(onlineusers[indexlogedofuser].uid)
+      useronline.online=false
+      useronline.lastseen=Date.now()
+      await useronline.save()
+  
+      onlineusers.splice(indexlogedofuser,1)
+      console.log('current users:',onlineusers);
+    });
+  
+  }
 }
+

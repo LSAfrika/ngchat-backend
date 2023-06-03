@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt')
 const JWT = require('jsonwebtoken')
 require('dotenv').config()
 
-
 exports.register=async(req,res)=>{
 
     try {
@@ -76,7 +75,6 @@ exports.login=async (req,res)=>{
         if(!finduser){
           return  res.status(404).send({message: 'please check email and password'})
         }
-         console.log(finduser)
          const passwordcompare= await bcrypt.compare(password, finduser.password)
 
          if(passwordcompare!==true){
@@ -94,12 +92,6 @@ exports.login=async (req,res)=>{
             
          }
 
-        //  console.log(payload.exp,'-',);
-        //  console.log(Date.now())
-
-         // create env key
-      //  const sigintoken=  JWT.sign(payload,process.env.HASHKEY)
-      //     res.status(200).send({sigintoken})
 
           const token=await JWT.sign(payload,process.env.HASHKEY,{
             expiresIn: '1w' ,issuer:'http://localhost:3000'
@@ -109,6 +101,8 @@ exports.login=async (req,res)=>{
            expiresIn:'1m',issuer:'http://localhost:3000'
          })
       
+         console.log(`${payload.username} has successfully loged in`)
+
             return res.send({message:`welcome back ${payload.username}`,token,refreshtoken})
 
 
@@ -155,6 +149,7 @@ exports.sociallogin=async (req,res)=>{
     const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
       expiresIn:'1m'
     })
+    console.log(`${payload.username} has successfully loged in`)
 
        return res.send({message:`welcome ${name}`,token,refreshtoken})
       }
