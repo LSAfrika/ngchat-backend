@@ -193,7 +193,7 @@ exports.totalusers=async(req,res)=>{
 
     ]}:{}
     const totalusers = await await usermodel.find(search).find({_id:{$ne:userid}}).count()
-    console.log('total users:',totalusers);
+    // console.log('total users:',totalusers);
     res.send({totalusers})
   } catch (error) {
 
@@ -207,7 +207,7 @@ exports.getusers=async(req,res)=>{
   try {
     const pagination=req.query.pagination
     const datasize=5
-    console.log('current pagination: ',pagination);
+    // console.log('current pagination: ',pagination);
     const{userid}=req.body
     const search=req.query.search ? {$or:[
       {username:{$regex:req.query.search,$options:'i'}}
