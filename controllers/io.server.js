@@ -50,7 +50,7 @@ module.exports = async(server)=> {
 sendmessage(socket)
 
 usernotifications(socket)
-// disconnect(socket) 
+ disconnect(socket) 
 
 logout(socket)
 
@@ -85,25 +85,38 @@ if(userindex !=-1){
   }
 
 
-  // const disconnect =(socket)=>{
+  const disconnect =(socket)=>{
   
-  //   socket.on("disconnect", async(reason) => {
-  //     console.log('user disconnected:',reason);
-  //     const indexlogedofuser= onlineusers.map(user=>user.soketid).indexOf(socket.id)
+    socket.on("disconnect", async(reason) => {
+
+      try {
+        console.log('user disconnected:',reason);
+        const indexlogedofuser= onlineusers.map(user=>user.soketid).indexOf(socket.id)
+    
+        if(indexlogedofuser !=-1){
+          
+              console.log('index of leaving user:',indexlogedofuser);
+              const useroffline=  await usermodel.findById(onlineusers[indexlogedofuser].uid)
+              useroffline.online=false
+              useroffline.lastseen=Date.now()
+              await useroffline.save()
+          
+              onlineusers.splice(indexlogedofuser,1)
+              console.log(`${useroffline.username}, has disconnected`);
+              return socket.emit('logged_off',{user:useroffline})
+            }
   
+      } catch (error) {
+
+        console.log('error in disconnect socket',error.message);
+        return socket.emit('logged_off',{errmessage:'error when user diconnrctiong'})
+
+        
+      }
+ 
+      });
   
-  //     console.log('index of leaving user:',indexlogedofuser);
-  //     const useroffline=  await usermodel.findById(onlineusers[indexlogedofuser].uid)
-  //     useroffline.online=false
-  //     useroffline.lastseen=Date.now()
-  //     await useroffline.save()
-  
-  //     onlineusers.splice(indexlogedofuser,1)
-  //     console.log('current users:',onlineusers);
-  //     return socket.emit('logged_off',{user:useroffline})
-  //   });
-  
-  // }
+  }
 
   const logout =(socket)=>{
     socket.on('logout',async(message, logout)=>{
