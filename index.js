@@ -40,8 +40,8 @@ const entry=async()=>{
 console.log('app entry point');
     await mongoose.connect(LocalDBconnection, { useNewUrlParser: true,useunifiedtopology: true})
     await socketserve.listen(PORT)
-    console.log(`SERVER RUNNING ONN PORT ${PORT}`);
     require('./controllers/io.server')(socketserve)
+    console.log(`SERVER RUNNING ONN PORT ${PORT}`);
 
   } catch (error) {
     console.log(error.message);

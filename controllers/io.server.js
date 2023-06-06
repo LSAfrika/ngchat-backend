@@ -2,7 +2,7 @@ const {usermodel}=require('../models/user.model')
 // const{disconnect}=require('./')
 // const {disconnect}=require('./io.server')
 
-module.exports = async(server)=> {
+module.exports = (server)=> {
 
 
   async function newusermiddlware(socket,next){
@@ -36,7 +36,7 @@ module.exports = async(server)=> {
 
   let onlineusers=[]
 
-  const io = require("socket.io")(server,{cors:{origin:['http://localhost:4200']}});
+  const io = require("socket.io")(server,{ pingTimeout:120000,cors:{origin:['http://localhost:4200']}});
 
 
 //
