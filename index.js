@@ -20,6 +20,7 @@ app.get('/',async(req,res)=>{
 })
 
 app.use('/user',require('./routes/user.routes'))
+app.use('/chat',require('./routes/messages.routes'))
 
 
 
