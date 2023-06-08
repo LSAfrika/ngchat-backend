@@ -37,7 +37,7 @@ module.exports = (server)=> {
 
   let onlineusers=[]
 
-  const io = require("socket.io")(server,{ pingTimeout:120000,cors:{origin:['http://localhost:4200']}});
+  const io = require("socket.io")(server,{pingTimeout:120000, cors:{origin:['http://localhost:4200']}});
 
 
 
@@ -69,7 +69,7 @@ const useroniline=(socket)=>{
 }
   const sendmessage=(socket)=>{
     // console.log('current socket',socket._events);
-   socket.on('message-sent',async(message)=>{
+   socket.on('message-sent',async(message,response)=>{
 
     try {
       
@@ -79,7 +79,7 @@ const useroniline=(socket)=>{
         const onlineuser=onlineusers[userindex].soketid
         // const onlineuserdbrecord=onlineusers[userindex].uid
 
-        const finduserchat=await userchatsmodel.find({chatparticipants:{$all:[message.from,message.to],$size:2}})
+        const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
 
         console.log('user chat list',finduserchat);
 
@@ -92,11 +92,30 @@ const useroniline=(socket)=>{
         })
         if(finduserchat==null) await userchatsmodel.create({chatparticipants:[message.from,message.to],lastmessage:createnewmessage.message})
 
-      if(finduserchat!=null) {finduserchat.chatupdate=Date.now();finduserchat.lastmessage=createnewmessage.message;await finduserchat.save()}
+      if(finduserchat!=null) {
+        console.log('message to save before',finduserchat);
+
+        finduserchat.chatupdate=Date.now();
+        finduserchat.lastmessage=createnewmessage.message;
+        console.log('message to save',finduserchat);
+        await finduserchat.save()}
 
         console.log('user to send message to',onlineusers[userindex]);
         // console.log('saved message',createnewmessage);
-     return   socket.to(onlineuser).emit('message-received',message)
+
+        const messagepayload={
+          from:createnewmessage.from,
+          message:createnewmessage.message,
+          createdAt:createnewmessage.createdAt,
+          viewed:createnewmessage.viewed,
+          _id:createnewmessage._id
+
+        }
+   
+
+      response({sent:messagepayload})
+
+     return   socket.to(onlineuser).emit('message-received',messagepayload)
       }
 
       const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
@@ -114,8 +133,16 @@ const useroniline=(socket)=>{
 
       if(finduserchat!=null) {finduserchat.chatupdate=Date.now();finduserchat.lastmessage=createnewmessage.message;await finduserchat.save()}
 
+      const messagepayload={
+        from:createnewmessage.from,
+        message:createnewmessage.message,
+        createdAt:createnewmessage.createdAt,
+        viewed:createnewmessage.viewed,
+        _id:createnewmessage._id
+      }
+ 
 
-      // console.log('user offline message saved',createnewmessage)
+    response({sent:messagepayload})
 
     } catch (error) {
       

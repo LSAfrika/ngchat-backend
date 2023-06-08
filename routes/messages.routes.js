@@ -9,7 +9,7 @@ const{fetchallchats,deletechat,updateviewedchats,fetchsinglechat}=require('../co
 
 
 router.get('/allchats/',authentication,fetchallchats)
-router.get('/singlechat/:userid',authentication,fetchsinglechat)
+router.get('/singlechat/:chatingwith',authentication,fetchsinglechat)
 router.get('/count',authentication,)
 router.patch('/chatviewed',authentication,)
 
