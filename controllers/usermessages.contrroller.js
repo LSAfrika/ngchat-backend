@@ -37,7 +37,7 @@ const loggedinuserindex=user.chatparticipants.map(chatter=>chatter._id.toString(
  userschats.push(user)
 
  chatcounter++
- if(chatcounter>=alluserchats.length) {  res.send({chats:userschats});return}
+ if(chatcounter>=alluserchats.length) {  res.send({chats:userschats})}
 
 
 })
