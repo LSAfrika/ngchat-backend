@@ -28,7 +28,8 @@ exports.userchatsmodel = mongoose.model(
       chatupdate:{type:Number,required:true,default:Date.now()},
       chatparticipants:[{type:mongoose.Schema.Types.ObjectId,required:true,ref:'user'}],
       userdelete:[{type:mongoose.Schema.Types.ObjectId,ref:'user'}],
-      lastmessage:{type:String,required:true}
+      lastmessage:{type:String,required:true},
+      unreadcounter:{type:Number,required:true,default:0}
 
     },
     { timestamps: true }

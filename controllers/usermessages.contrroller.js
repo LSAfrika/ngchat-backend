@@ -8,22 +8,44 @@ require('dotenv').config()
 exports.fetchallchats=async(req,res)=>{
 
    try{
+    let userschats=[]
+    let chatcounter=0
     const {userid}=req.body
-    const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).select('chatupdate chatparticipants lastmessage ')
+    const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).select('chatupdate unreadcounter chatparticipants lastmessage ')
     .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
     if(alluserchats.length==0) return res.send(alluserchats)
-//  console.log('current chatters',alluserchats);
- alluserchats.forEach((user)=>{
+
+ alluserchats.forEach(async(user)=>{
   
-  const loggedinuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(userid)
+// console.log(chatcounter);
+
+console.log('counter',chatcounter,'\n lenght',alluserchats.length);
+  const usersinchat=user.chatparticipants.map(chatter=>chatter._id.toString())
+  // console.log('current users in chat',usersinchat);
+
+  const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...usersinchat],$size:2},from:{$ne:userid}}).count()
+  // console.log('total chats',unreadcounter);
+user.unreadcounter=unreadcounter
+
+const loggedinuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(userid)
   // console.log('user index: ',loggedinuserindex)
+  
   user.chatparticipants.splice(loggedinuserindex,1)
+  // console.log('update unread counter \n',user)
+
+ userschats.push(user)
+
+ chatcounter++
+ if(chatcounter>=alluserchats.length) {  res.send({chats:userschats});return}
+
+
 })
 
-console.log('current user ',userid);
 
-    res.send({chats:alluserchats})
+
+
+   
 
    }
     catch (error) {
@@ -35,7 +57,13 @@ console.log('current user ',userid);
     }
 
 }
-
+exports.fetchunreadcounter=async(req,res)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}
 
 exports.fetchsinglechat=async(req,res)=>{
 
