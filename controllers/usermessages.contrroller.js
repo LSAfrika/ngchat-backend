@@ -24,7 +24,7 @@ console.log('counter',chatcounter,'\n lenght',alluserchats.length);
   const usersinchat=user.chatparticipants.map(chatter=>chatter._id.toString())
   // console.log('current users in chat',usersinchat);
 
-  const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...usersinchat],$size:2},from:{$ne:userid}}).count()
+  const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...usersinchat],$size:2},from:{$ne:userid},viewed:false}).count()
   // console.log('total chats',unreadcounter);
 user.unreadcounter=unreadcounter
 
@@ -57,14 +57,33 @@ const loggedinuserindex=user.chatparticipants.map(chatter=>chatter._id.toString(
     }
 
 }
-exports.fetchunreadcounter=async(req,res)=>{
+
+exports.resetunreadchatcounter=async(req,res)=>{
   try {
-    
+    let readcounter=0
+    const {userid}=req.body
+    const chatparticipantid=req.params.id
+
+    const unreadmessages = await messagesmodel.find({chatparticipants:{$all:[userid,chatparticipantid],$size:2},from:{$ne:userid},viewed:false})
+
+    if(unreadmessages.length==0) return res.send({message:'all messages read'})
+
+    unreadmessages.forEach(async(message) => {
+
+      message.viewed=true
+      await message.save()
+      readcounter++
+      if(readcounter>=unreadmessages.length){
+res.send({message:'all messages viewed'})
+      }
+      // console.log('current message itteration: ',message);
+      
+    });
+    // res.send({userid,chatparticipantid,unreadmessages})
   } catch (error) {
     
   }
 }
-
 exports.fetchsinglechat=async(req,res)=>{
 
   try{
