@@ -50,7 +50,7 @@ module.exports = (server)=> {
 
 sendmessage(socket)
 
-usernotifications(socket)
+// usernotifications(socket)
  disconnect(socket) 
 
 logout(socket)
@@ -114,8 +114,45 @@ const useroniline=(socket)=>{
    
 
       response({sent:messagepayload})
+      let chatcounter=0
+      let userschats=[]
+      const updateduserchats = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+      .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
-     return   socket.to(onlineuser).emit('message-received',messagepayload)
+console.log('current user chat list: \n',updateduserchats.length);
+      updateduserchats.forEach(async(user)=>{
+  
+        // console.log(chatcounter);
+        
+        // console.log('counter',chatcounter,'\n lenght',alluserchats.length);
+          // const usersinchat=user.chatparticipants.map(chatter=>chatter._id.toString())
+          // console.log('current users in chat',usersinchat);
+        
+          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[message.from,message.to],$size:2},from:{$ne:message.from},viewed:false}).count()
+          // console.log('total chats',unreadcounter);
+        user.unreadcounter=unreadcounter
+        
+        const currentuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(message.to)
+          // console.log('user index: ',currentuserindex)
+          
+          user.chatparticipants.splice(currentuserindex,1)
+          // console.log('update unread counter \n',user)
+        
+          userschats.push(user)
+        // return user
+        
+         chatcounter++
+         if(chatcounter>=updateduserchats.length) {  
+      
+
+           socket.to(onlineuser).emit('message-received',messagepayload)
+          await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschats})
+           
+        return
+         }
+        
+        
+        })
       }
 
       const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
@@ -153,7 +190,13 @@ const useroniline=(socket)=>{
 
   }
 
-  const usernotifications=(socket)=>{
+  const fetchuserchatlist=async(uid)=>{
+
+    try {
+      
+    } catch (error) {
+      
+    }
 
   }
 
