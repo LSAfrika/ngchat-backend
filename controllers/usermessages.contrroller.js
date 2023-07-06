@@ -11,7 +11,7 @@ exports.fetchallchats=async(req,res)=>{
     let userschats=[]
     let chatcounter=0
     const {userid}=req.body
-    const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+    const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
     .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
     if(alluserchats.length==0) return res.send(alluserchats)
