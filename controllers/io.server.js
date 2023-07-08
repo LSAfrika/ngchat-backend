@@ -81,7 +81,7 @@ const useroniline=(socket)=>{
 
         const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
 
-        console.log('user chat list',finduserchat);
+        console.log('user chat list:',finduserchat);
 
 
         const createnewmessage=await messagesmodel.create(
@@ -119,46 +119,48 @@ const useroniline=(socket)=>{
       const updateduserchats = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
       .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
-console.log('current user chat list: \n',updateduserchats.length);
+//  console.log('current user chat list: \n',updateduserchats);
       updateduserchats.forEach(async(user)=>{
   
-        // console.log(chatcounter);
+       
         
-        // console.log('counter',chatcounter,'\n lenght',alluserchats.length);
-          // const usersinchat=user.chatparticipants.map(chatter=>chatter._id.toString())
-          // console.log('current users in chat',usersinchat);
+          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...user.chatparticipants],$size:2},from:{$ne:message.to},viewed:false}).count()
+           console.log('total unread chats',unreadcounter);
+         user.unreadcounter=unreadcounter
         
-          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[message.from,message.to],$size:2},from:{$ne:message.from},viewed:false}).count()
-          // console.log('total chats',unreadcounter);
-        user.unreadcounter=unreadcounter
-        
+        console.log('unread counter per user: \n',user.unreadcounter)
         const currentuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(message.to)
           // console.log('user index: ',currentuserindex)
           
           user.chatparticipants.splice(currentuserindex,1)
-          // console.log('update unread counter \n',user)
         
-          userschats.push(user)
-        // return user
+
+          // return user
+           userschats.push(user)
+        // // // return user
         
          chatcounter++
          if(chatcounter>=updateduserchats.length) {  
-      
+  
+           await   console.log('updated chat list array :\n',userschats)
+          socket.to(onlineuser).emit('message-received',messagepayload)
+        return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschats})
 
-           socket.to(onlineuser).emit('message-received',messagepayload)
-          await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschats})
-           
-        return
-         }
+        }
+        
         
         
         })
+
+      
+         
       }
 
-      const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
-      // console.log('user chat list',finduserchat);
+      else{
 
-      // if(finduserchat==null) await userchatsmodel.create({chatparticipants:[message.from,message.to]})
+
+      const finduserchat=await userchatsmodel.findOne({chatparticipants:{$all:[message.from,message.to],$size:2}})
+      
       
       const createnewmessage=await messagesmodel.create(
         {message:message.message,
@@ -180,6 +182,9 @@ console.log('current user chat list: \n',updateduserchats.length);
  
 
     response({sent:messagepayload})
+
+  }
+
 
     } catch (error) {
       
