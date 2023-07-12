@@ -56,7 +56,7 @@ sendmessage(socket)
 logout(socket)
 
 login(socket)
-
+messagereceived(socket)
 
 
   });
@@ -119,16 +119,16 @@ const useroniline=(socket)=>{
       const updateduserchats = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
       .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
-//  console.log('current user chat list: \n',updateduserchats);
+  // console.log('current user chat list: \n',updateduserchats);
       updateduserchats.forEach(async(user)=>{
   
-       
+       console.log('current user in array',{chatupdated:user.chatupdate,lstmsg:user.lastmessage/85});
         
-          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...user.chatparticipants],$size:2},from:{$ne:message.to},viewed:false}).count()
+          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[user.chatparticipants[0],user.chatparticipants[1]],$size:2},from:{$ne:message.to},viewed:false}).count()
            console.log('total unread chats',unreadcounter);
          user.unreadcounter=unreadcounter
         
-        console.log('unread counter per user: \n',user.unreadcounter)
+        // console.log('unread counter per user: \n',user.unreadcounter)
         const currentuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(message.to)
           // console.log('user index: ',currentuserindex)
           
@@ -137,12 +137,13 @@ const useroniline=(socket)=>{
 
           // return user
            userschats.push(user)
+           console.log('res userchats',userschats);
         // // // return user
         
          chatcounter++
          if(chatcounter>=updateduserchats.length) {  
   
-           await   console.log('updated chat list array :\n',userschats)
+          //  await   console.log('updated chat list array :\n',userschats)
           socket.to(onlineuser).emit('message-received',messagepayload)
         return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschats})
 
@@ -152,7 +153,7 @@ const useroniline=(socket)=>{
         
         })
 
-      
+
          
       }
 
@@ -195,12 +196,37 @@ const useroniline=(socket)=>{
 
   }
 
-  const fetchuserchatlist=async(uid)=>{
+  const messagereceived=(socket)=>{
 
     try {
-      
+      socket.on('messagereceived',async(message,response)=>{
+
+         console.log('current emitted chat',message);
+        const chatmessagetomarkasviewed=await messagesmodel.findById(message._id)
+
+        if( chatmessagetomarkasviewed == null)return
+        // console.log('message found in db',chatmessagetomarkasviewed);
+
+        chatmessagetomarkasviewed.viewed=true
+        await chatmessagetomarkasviewed.save()
+        console.log('message found in db after being saved:\n',chatmessagetomarkasviewed);
+
+        const indexofmessagesender=onlineusers.map(user=>user.uid).indexOf(message.from)
+console.log('index of sender',indexofmessagesender);
+        if(indexofmessagesender != -1){
+          const sendersocket=onlineusers[indexofmessagesender].soketid
+
+          console.log('sender socket id',sendersocket);
+          socket.to(sendersocket).emit('delivered',{message:'delivered'})
+
+        }
+
+
+
+
+      })
     } catch (error) {
-      
+      console.log('error occured while delivering delivery report: ',error);
     }
 
   }
@@ -212,7 +238,7 @@ const useroniline=(socket)=>{
 
       try {
         console.log('user disconnected:',reason);
-        const indexlogedofuser= onlineusers.map(user=>user.soketid).indexOf(socket.id)
+        messagereceived
     
         if(indexlogedofuser !=-1){
           
