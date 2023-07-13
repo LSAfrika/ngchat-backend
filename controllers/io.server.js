@@ -126,46 +126,33 @@ const useroniline=(socket)=>{
    
 
       response({sent:messagepayload})
-      let chatcounter=0
-      let userschats=[]
-      const updateduserchats = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+     
+      const userschatslist = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
       .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
   // console.log('current user chat list: \n',updateduserchats);
-      updateduserchats.forEach(async(user)=>{
+  userschatslist.forEach((user)=>{
   
-       console.log('current user in array',{chatupdated:user.chatupdate,lstmsg:user.lastmessage/85});
         
-          const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[user.chatparticipants[0],user.chatparticipants[1]],$size:2},from:{$ne:message.to},viewed:false}).count()
-           console.log('total unread chats',unreadcounter);
-         user.unreadcounter=unreadcounter
+      
         
-        // console.log('unread counter per user: \n',user.unreadcounter)
-        const currentuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(message.to)
-          // console.log('user index: ',currentuserindex)
+        const currentuserindexchatparticipantarray=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(message.to)
+        const senderindexunreadcounterarray=user.unreadcounter.map(chatter=>chatter.userid).indexOf(message.from)
+      // console.log('recepient unread counter position');
           
-          user.chatparticipants.splice(currentuserindex,1)
+          user.chatparticipants.splice(currentuserindexchatparticipantarray,1)
+           user.unreadcounter.splice(senderindexunreadcounterarray,1)
         
 
-          // return user
-           userschats.push(user)
-           console.log('res userchats',userschats);
-        // // // return user
-        
-         chatcounter++
-         if(chatcounter>=updateduserchats.length) {  
-  
-          //  await   console.log('updated chat list array :\n',userschats)
-          socket.to(onlineuser).emit('message-received',messagepayload)
-        return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschats})
-
-        }
         
         
         
         })
 
+      //  console.log('current user in array',userschatslist);
 
+        socket.to(onlineuser).emit('message-received',messagepayload)
+        return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschatslist})
          
       }
 

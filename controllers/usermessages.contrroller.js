@@ -14,34 +14,20 @@ exports.fetchallchats=async(req,res)=>{
     const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
     .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
-    if(alluserchats.length==0) return res.send(alluserchats)
+   
 
- alluserchats.forEach(async(user)=>{
+ alluserchats.forEach((user)=>{
   
-// console.log(chatcounter);
+const indexofcurentchatlistowner=user.unreadcounter.map(u=>u.userid).indexOf(userid)
+if(indexofcurentchatlistowner ==0) user.unreadcounter.splice(1,1)
+if(indexofcurentchatlistowner ==1) user.unreadcounter.splice(0,1)
 
-console.log('counter',chatcounter,'\n lenght',alluserchats.length);
-  const usersinchat=user.chatparticipants.map(chatter=>chatter._id.toString())
-  // console.log('current users in chat',usersinchat);
 
-  const unreadcounter = await messagesmodel.find({chatparticipants:{$all:[...usersinchat],$size:2},from:{$ne:userid},viewed:false}).count()
-  // console.log('total chats',unreadcounter);
-user.unreadcounter=unreadcounter
-
-const loggedinuserindex=user.chatparticipants.map(chatter=>chatter._id.toString()).indexOf(userid)
-  // console.log('user index: ',loggedinuserindex)
-  
-  user.chatparticipants.splice(loggedinuserindex,1)
-  // console.log('update unread counter \n',user)
-
- userschats.push(user)
-
- chatcounter++
- if(chatcounter>=alluserchats.length) {  res.send({chats:userschats})}
 
 
 })
 
+return res.send(alluserchats)
 
 
 
