@@ -74,7 +74,7 @@ exports.resetunreadchatcounter=async(req,res)=>{
       await message.save()
       readcounter++
       if(readcounter>=unreadmessages.length){
-        const userchat=  await userchatsmodel.find({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
+        const userchat=  await userchatsmodel.findOne({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
         console.log('user chat model',userchat);
         console.log('user chat model unread counter',userchat.unreadcounter);
         const user_index=userchat.unreadcounter.map(user=>user.userid).indexOf(userid)
