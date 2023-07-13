@@ -74,14 +74,22 @@ exports.resetunreadchatcounter=async(req,res)=>{
       await message.save()
       readcounter++
       if(readcounter>=unreadmessages.length){
-res.send({message:'all messages viewed'})
+        const userchat=  await userchatsmodel.find({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
+        console.log('user chat model',userchat);
+        console.log('user chat model unread counter',userchat.unreadcounter);
+        const user_index=userchat.unreadcounter.map(user=>user.userid).indexOf(userid)
+
+        userchat.unreadcounter[user_index].count=0
+        await userchat.save()
+        res.send({message:'all messages viewed and chat model updated'})
       }
       // console.log('current message itteration: ',message);
       
     });
     // res.send({userid,chatparticipantid,unreadmessages})
   } catch (error) {
-    
+    console.log('error from reset of message counter',error.message);
+    res.send({errmessage:error.message})
   }
 }
 exports.fetchsinglechat=async(req,res)=>{

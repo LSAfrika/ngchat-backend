@@ -90,14 +90,26 @@ const useroniline=(socket)=>{
           viewed:message.viewed,
           chatparticipants:[message.from,message.to]  
         })
-        if(finduserchat==null) await userchatsmodel.create({chatparticipants:[message.from,message.to],lastmessage:createnewmessage.message})
+        if(finduserchat==null) {
+          await userchatsmodel.create({
+            chatparticipants:[message.from,message.to],
+            lastmessage:createnewmessage.message,
+            unreadcounter:[{userid:message.from,count:0},{userid:message.to,count:1}]
+
+          })
+        }
 
       if(finduserchat!=null) {
         console.log('message to save before',finduserchat);
 
         finduserchat.chatupdate=Date.now();
         finduserchat.lastmessage=createnewmessage.message;
-        console.log('message to save',finduserchat);
+        const fromid_index=finduserchat.unreadcounter.map(user=>user.userid).indexOf(message.from)
+        const toid_index=finduserchat.unreadcounter.map(user=>user.userid).indexOf(message.to)
+
+        finduserchat.unreadcounter[fromid_index].count=0
+        finduserchat.unreadcounter[toid_index].count=finduserchat.unreadcounter[toid_index].count+1
+        // console.log('message to save',finduserchat);
         await finduserchat.save()}
 
         console.log('user to send message to',onlineusers[userindex]);
@@ -169,9 +181,27 @@ const useroniline=(socket)=>{
         viewed:message.viewed,
         chatparticipants:[message.from,message.to]  
       })
-      if(finduserchat==null) await userchatsmodel.create({chatparticipants:[message.from,message.to],lastmessage:createnewmessage.message})
+      if(finduserchat==null){
+         await userchatsmodel.create({
+        chatparticipants:[message.from,message.to],
+        lastmessage:createnewmessage.message,
+        
+        unreadcounter:[{userid:message.from,count:0},{userid:message.to,count:1}]
+      })
+    }
 
-      if(finduserchat!=null) {finduserchat.chatupdate=Date.now();finduserchat.lastmessage=createnewmessage.message;await finduserchat.save()}
+      if(finduserchat!=null) {
+        finduserchat.chatupdate=Date.now();
+        finduserchat.lastmessage=createnewmessage.message;
+
+        const fromid_index=finduserchat.unreadcounter.map(user=>user.userid).indexOf(message.from)
+        const toid_index=finduserchat.unreadcounter.map(user=>user.userid).indexOf(message.to)
+
+        finduserchat.unreadcounter[fromid_index].count=0
+        finduserchat.unreadcounter[toid_index].count=finduserchat.unreadcounter[toid_index].count+1
+
+        await finduserchat.save()
+      }
 
       const messagepayload={
         from:createnewmessage.from,

@@ -4,7 +4,7 @@ const mongoose= require('mongoose')
 exports.userchatlistmodel=mongoose.model(
   'userchatlist',
 new mongoose.Schema({
- chatname:{type:String,required:true},
+//  chatname:{type:String,required:true},
 // o                                           
  users:{type:mongoose.Schema.Types.ObjectId,ref:'user'},
  latestmessage:{type:mongoose.Schema.Types.ObjectId, ref:"message"},
