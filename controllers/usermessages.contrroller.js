@@ -16,17 +16,21 @@ exports.fetchallchats=async(req,res)=>{
 
    
 
- alluserchats.forEach((user)=>{
+const filterchatlist= alluserchats.map((user)=>{
   
-const indexofcurentchatlistowner=user.unreadcounter.map(u=>u.userid).indexOf(userid)
-if(indexofcurentchatlistowner ==0) user.unreadcounter.splice(1,1)
-if(indexofcurentchatlistowner ==1) user.unreadcounter.splice(0,1)
+const indexofcurentchatlistowner_unread=user.unreadcounter.map(u=>u.userid).indexOf(userid)
+const indexofcurentchatlistowner_participants=user.chatparticipants.map(u=>u._id.toString()).indexOf(userid)
+// console.log('user index',indexofcurentchatlistowner);
+if(indexofcurentchatlistowner_unread ==0) user.unreadcounter.splice(1,1)
+if(indexofcurentchatlistowner_unread ==1) user.unreadcounter.splice(0,1)
+if(indexofcurentchatlistowner_participants ==0) user.chatparticipants.splice(0,1)
+if(indexofcurentchatlistowner_participants ==1) user.chatparticipants.splice(1,1)
 
-
+return user
 
 
 })
-
+console.log('all user chats: ',filterchatlist);
 return res.send(alluserchats)
 
 
