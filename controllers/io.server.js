@@ -226,6 +226,14 @@ const useroniline=(socket)=>{
 
         chatmessagetomarkasviewed.viewed=true
         await chatmessagetomarkasviewed.save()
+
+        const chatdata= await userchatsmodel.findOne({chatparticipants:{$all:[message.to,message.from],$size:2}})
+        if(chatdata){
+          const messagereeiverindex=chatdata.unreadcounter.map(u=>u.userid).indexOf(message.to)
+          chatdata.unreadcounter[messagereeiverindex].count=0
+          await chatdata.save()
+
+        }
         console.log('message found in db after being saved:\n',chatmessagetomarkasviewed);
 
         const indexofmessagesender=onlineusers.map(user=>user.uid).indexOf(message.from)
@@ -235,6 +243,7 @@ console.log('index of sender',indexofmessagesender);
 
           console.log('sender socket id',sendersocket);
           socket.to(sendersocket).emit('delivered',{message:'delivered'})
+          response(chatmessagetomarkasviewed)
 
         }
 

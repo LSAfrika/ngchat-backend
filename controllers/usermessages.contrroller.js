@@ -54,8 +54,20 @@ exports.resetunreadchatcounter=async(req,res)=>{
     const {userid}=req.body
     const chatparticipantid=req.params.id
 
-    const unreadmessages = await messagesmodel.find({chatparticipants:{$all:[userid,chatparticipantid],$size:2},from:{$ne:userid},viewed:false})
+    const unreadmessages = await messagesmodel.find({
+      chatparticipants:{$all:[userid,chatparticipantid],$size:2},
+      from:{$ne:userid},viewed:false
+    })
 
+    const userchat=  await userchatsmodel.findOne({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
+    const user_index=userchat.unreadcounter.map(user=>user.userid).indexOf(userid)
+
+    if(userchat !=null){
+
+      userchat.unreadcounter[user_index].count=0
+            await userchat.save()
+  }      
+    
     if(unreadmessages.length==0) return res.send({message:'all messages read'})
 
     unreadmessages.forEach(async(message) => {
@@ -67,10 +79,7 @@ exports.resetunreadchatcounter=async(req,res)=>{
         const userchat=  await userchatsmodel.findOne({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
         console.log('user chat model',userchat);
         console.log('user chat model unread counter',userchat.unreadcounter);
-        const user_index=userchat.unreadcounter.map(user=>user.userid).indexOf(userid)
-
-        userchat.unreadcounter[user_index].count=0
-        await userchat.save()
+    
         res.send({message:'all messages viewed and chat model updated'})
       }
       // console.log('current message itteration: ',message);
