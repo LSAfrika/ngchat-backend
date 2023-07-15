@@ -376,11 +376,34 @@ const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
 exports.getpersonalcontactlist=async(req,res)=>{
   try {
     const {userid}=req.body
+
+    let favusers=[]
+    let counter=0
 const userprofile=await usermodel.findById(userid).select('email username fovoritecontacts')
 // const allusers=await usermodel.find()
 
 if(userprofile == null) return res.status(404).send({message:'no user found'})
-res.send(userprofile)
+
+userprofile.fovoritecontacts.forEach(async(user) => {
+
+  console.log('user id fav',user);
+  const founduser= await usermodel.findById(user).select('username profileimage online lastseen')
+
+  if(founduser != null) {
+
+    favusers.push(founduser)
+  }
+
+  counter++
+
+  if(counter>=userprofile.fovoritecontacts.length){
+
+    res.send(favusers)
+  }
+
+  
+});
+// res.send(userprofile)
 
 
   } catch (error) {
