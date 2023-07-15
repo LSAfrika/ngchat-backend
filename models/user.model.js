@@ -12,7 +12,8 @@ exports.usermodel = mongoose.model('user',mongoose.Schema({
     profileimg:{type:String,required:true,default:'http://localhost:3000/default/profile.png' },
      status:{type:String,required:true,default:'hello there am using NG Chat'},
     online:{type:Boolean,required:true,default:true},
-    lastseen:{type:Number,required:true,default:Date.now()}
+    lastseen:{type:Number,required:true,default:Date.now()},
+    fovoritecontacts:[{type:String}]
 
 },{timestamps:true}
 

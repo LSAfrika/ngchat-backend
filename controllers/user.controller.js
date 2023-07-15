@@ -26,7 +26,8 @@ exports.register=async(req,res)=>{
 
         email,
         username,
-        password:hash
+        password:hash,
+        fovoritecontacts:[]
 
     })
 
@@ -131,7 +132,7 @@ exports.sociallogin=async (req,res)=>{
     //   console.log('userid in db: \n',finduseruser_id);
 
       if(finduserbyemail===null ){
-       const newuser= await usermodel.create({email:email,firebaseuniqueid:user_id,username:name})
+       const newuser= await usermodel.create({email:email,firebaseuniqueid:user_id,username:name, fovoritecontacts:[]})
 
        const payload={
         username:newuser.username,
@@ -372,5 +373,66 @@ const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
 
 }
 
+exports.getpersonalcontactlist=async(req,res)=>{
+  try {
+    const {userid}=req.body
+const userprofile=await usermodel.findById(userid).select('email username fovoritecontacts')
+// const allusers=await usermodel.find()
+
+if(userprofile == null) return res.status(404).send({message:'no user found'})
+res.send(userprofile)
 
 
+  } catch (error) {
+
+    res.send({message:'error while getting personal contacts',errmessage:error.message})
+    
+  }
+
+ 
+
+}
+
+exports.addpersonalcontactlist=async(req,res)=>{
+  try {
+    const {userid,favoriteuserid}=req.body
+const userprofile=await usermodel.findById(userid).select('email username fovoritecontacts')
+// const allusers=await usermodel.find()
+
+if(userprofile == null) return res.status(404).send({message:'no user found'})
+
+const indexoffavoriteuser= userprofile.fovoritecontacts.indexOf(favoriteuserid)
+
+if(indexoffavoriteuser !=-1){
+
+  userprofile.fovoritecontacts.splice(indexoffavoriteuser,1)
+  await userprofile.save()
+
+  return res.send({message:'removed user to personal contact list',userprofile})
+
+}
+
+if(indexoffavoriteuser ==-1){
+  
+
+  
+  userprofile.fovoritecontacts.push(favoriteuserid)
+  await userprofile.save()
+
+  return res.send({message:'added user to personal contact list',userprofile})
+
+}
+// res.send({userprofile,favid:favoriteuserid})
+
+
+
+
+  } catch (error) {
+
+    res.send({message:'error while getting personal contacts',errmessage:error.message})
+    
+  }
+
+ 
+
+}
