@@ -220,7 +220,7 @@ exports.getusers=async(req,res)=>{
     
     const users = await usermodel.find(search).find({_id:{$ne:userid}})
     .select('username profileimg online ')
-    .sort({createdAt:'desc'})
+    .sort({username:1})
     .limit(pagination*datasize)
       return res.send({users})
 
@@ -383,11 +383,12 @@ const userprofile=await usermodel.findById(userid).select('email username fovori
 // const allusers=await usermodel.find()
 
 if(userprofile == null) return res.status(404).send({message:'no user found'})
+if(userprofile.fovoritecontacts.length == 0) return res.send(favusers)
 
 userprofile.fovoritecontacts.forEach(async(user) => {
 
   console.log('user id fav',user);
-  const founduser= await usermodel.findById(user).select('username profileimage online lastseen')
+  const founduser= await usermodel.findById(user).select('username profileimg online lastseen')
 
   if(founduser != null) {
 
