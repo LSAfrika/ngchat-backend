@@ -128,7 +128,7 @@ const useroniline=(socket)=>{
       response({sent:messagepayload})
      
       const userschatslist = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
-      .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
+      .populate({path:'chatparticipants',select:'_id profileimg username  online'})
 
   // console.log('current user chat list: \n',updateduserchats);
   userschatslist.forEach((user)=>{
