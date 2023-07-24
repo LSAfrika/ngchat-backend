@@ -53,7 +53,7 @@ sendmessage(socket)
 // usernotifications(socket)
  disconnect(socket) 
 
-logout(socket)
+ logout(socket)
 
 login(socket)
 messagereceived(socket)
@@ -264,8 +264,13 @@ console.log('index of sender',indexofmessagesender);
 
       try {
         console.log('user disconnected:',reason);
-        messagereceived
+        console.log('current users:',onlineusers);
+        console.log('current socket:',socket.id);
+
+        //messagereceived
+        const indexlogedofuser= onlineusers.map(user=>user.soketid).indexOf(socket.id)
     
+        console.log('index of user disconnected',indexlogedofuser);
         if(indexlogedofuser !=-1){
           
               console.log('index of leaving user:',indexlogedofuser);
@@ -275,8 +280,14 @@ console.log('index of sender',indexofmessagesender);
               await useroffline.save()
           
               onlineusers.splice(indexlogedofuser,1)
+              console.log(`${useroffline.username}, has disconnected`,useroffline);
               console.log(`${useroffline.username}, has disconnected`);
               return socket.emit('logged_off',{user:useroffline})
+            }else{
+
+              console.log('user has logged off properly');
+              return socket.emit('logged_off',{message:"user logged off"})
+
             }
   
       } catch (error) {
@@ -305,6 +316,7 @@ console.log('index of sender',indexofmessagesender);
                 user.lastseen=Date.now()
                 await user.save()
         
+                // console.log('log out user update',user);
                 userpayload={
                   _id:user._id,
                   profileimg:user.profileimg,
@@ -315,7 +327,7 @@ console.log('index of sender',indexofmessagesender);
             
         
                 onlineusers.splice(indexlogedofuser,1)
-                // console.log('current users:',onlineusers);
+                 console.log('current users:',onlineusers);
         
                 // console.log('user has logedout:\n',message);
                logout({loggedout:true})
