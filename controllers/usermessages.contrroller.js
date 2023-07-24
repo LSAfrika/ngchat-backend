@@ -12,7 +12,7 @@ exports.fetchallchats=async(req,res)=>{
     let chatcounter=0
     const {userid}=req.body
     const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
-    .populate({path:'chatparticipants',select:'profileimg username chatupdate  online'})
+    .populate({path:'chatparticipants',select:'profileimg username chatupdate  online lastseen'})
 
    
 
@@ -30,7 +30,7 @@ return user
 
 
 })
-console.log('all user chats: ',filterchatlist);
+// console.log('all user chats: ',filterchatlist);
 return res.send(alluserchats)
 
 
