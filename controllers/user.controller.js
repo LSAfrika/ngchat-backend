@@ -139,6 +139,7 @@ exports.sociallogin=async (req,res)=>{
         email:newuser.email,
         profileimg:newuser.profileimg,
         createdAt:newuser.createdAt,
+        status:newuser.status,
         _id:newuser._id
       }
 
