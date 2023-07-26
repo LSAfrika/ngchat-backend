@@ -388,7 +388,7 @@ if(userprofile.fovoritecontacts.length == 0) return res.send(favusers)
 userprofile.fovoritecontacts.forEach(async(user) => {
 
   console.log('user id fav',user);
-  const founduser= await usermodel.findById(user).select('username profileimg online lastseen')
+  const founduser= await usermodel.findById(user).select('username profileimg online lastseen status')
 
   if(founduser != null) {
 
