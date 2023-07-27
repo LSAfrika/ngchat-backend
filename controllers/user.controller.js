@@ -429,22 +429,59 @@ if(userprofile == null) return res.status(404).send({message:'no user found'})
 const indexoffavoriteuser= userprofile.fovoritecontacts.indexOf(favoriteuserid)
 
 if(indexoffavoriteuser !=-1){
+  let favcontacts=[]
 
   userprofile.fovoritecontacts.splice(indexoffavoriteuser,1)
-  await userprofile.save()
+  const userfavoritecontacts= await userprofile.save()
 
-  return res.send({message:'removed user to personal contact list',userprofile})
+  userfavoritecontacts.fovoritecontacts.forEach(async(userobjectid)=>{
+
+const favoriteuserdetails =await usermodel.findById(userobjectid).select('lastseen online profileimg status username')
+// console.log('populated fav user',favoriteuserdetails);
+
+if(favoriteuserdetails !=null){  
+   favoriteuserdetails
+favcontacts.push(favoriteuserdetails)
+
+  
+  if(favcontacts.length>=userfavoritecontacts.fovoritecontacts.length)  res.send({message:'removed user to personal contact list',favcontacts})
+
+}
+
+})
+
+
+  
+
+  // return res.send({message:'removed user to personal contact list',userprofile})
 
 }
 
 if(indexoffavoriteuser ==-1){
   
-
+let favcontacts=[]
   
   userprofile.fovoritecontacts.push(favoriteuserid)
-  await userprofile.save()
+   const userfavoritecontacts= await userprofile.save()
 
-  return res.send({message:'added user to personal contact list',userprofile})
+  userfavoritecontacts.fovoritecontacts.forEach(async(userobjectid)=>{
+
+const favoriteuserdetails =await usermodel.findById(userobjectid).select('lastseen online profileimg status username')
+// console.log('populated fav user',favoriteuserdetails);
+
+if(favoriteuserdetails !=null){  
+   favoriteuserdetails
+favcontacts.push(favoriteuserdetails)
+
+  
+  if(favcontacts.length>=userfavoritecontacts.fovoritecontacts.length)  res.send({message:'added user to personal contact list',favcontacts})
+
+}
+
+})
+
+
+
 
 }
 // res.send({userprofile,favid:favoriteuserid})
