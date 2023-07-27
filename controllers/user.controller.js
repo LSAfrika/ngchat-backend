@@ -433,6 +433,8 @@ if(indexoffavoriteuser !=-1){
 
   userprofile.fovoritecontacts.splice(indexoffavoriteuser,1)
   const userfavoritecontacts= await userprofile.save()
+  if (userfavoritecontacts.fovoritecontacts.length==0) res.send({message:'no personal contacts to remove',favcontacts})
+
 
   userfavoritecontacts.fovoritecontacts.forEach(async(userobjectid)=>{
 
