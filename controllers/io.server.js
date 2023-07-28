@@ -234,7 +234,20 @@ const useroniline=(socket)=>{
           await chatdata.save()
 
         }
+
+        const chatlist= await userchatsmodel.
+        find({chatparticipants:{$all:[message.to],$size:2}}).
+        populate({path:'chatparticipants',select:'lastseen online  profileimg status username'})
+
+
+        //*   WORK ON FILTERING CURRENT USER FROM FILTERED ARRAY
+    const filterparticipantsarray=   chatlist.chatparticipants.map(participant=>{
+
+      //  const indexofchatlistowner=
+       })
+
         console.log('message found in db after being saved:\n',chatmessagetomarkasviewed);
+        console.log('user to chat list:\n',chatmessagetomarkasviewed);
 
         const indexofmessagesender=onlineusers.map(user=>user.uid).indexOf(message.from)
 console.log('index of sender',indexofmessagesender);
@@ -243,7 +256,7 @@ console.log('index of sender',indexofmessagesender);
 
           console.log('sender socket id',sendersocket);
           socket.to(sendersocket).emit('delivered',{message:'delivered'})
-          response(chatmessagetomarkasviewed)
+          response({chatmessagetomarkasviewed,chatlist})
 
         }
 
