@@ -236,26 +236,34 @@ const useroniline=(socket)=>{
         }
 
         const chatlist= await userchatsmodel.
-        find({chatparticipants:{$all:[message.to],$size:2}}).
+        find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).
         populate({path:'chatparticipants',select:'lastseen online  profileimg status username'})
 
 
         //*   WORK ON FILTERING CURRENT USER FROM FILTERED ARRAY
-    const filterparticipantsarray=   chatlist.chatparticipants.map(participant=>{
+    // const filterparticipantsarray=   chatlist.chatparticipants.map(participant=>{
 
-      //  const indexofchatlistowner=
-       })
+    //   //  const indexofchatlistowner=
+    //    })
+
+    chatlist.forEach(chat=>{
+
+     const messagerceiverindexinchatparticipants= chat.chatparticipants.map(_chat=>_chat._id.toString()).indexOf(message.to)
+     if(messagerceiverindexinchatparticipants !=-1)chat.chatparticipants.splice(messagerceiverindexinchatparticipants,1)
+
+    })
 
         console.log('message found in db after being saved:\n',chatmessagetomarkasviewed);
         console.log('user to chat list:\n',chatmessagetomarkasviewed);
+        console.log('filtered chat list:\n',chatmessagetomarkasviewed);
 
         const indexofmessagesender=onlineusers.map(user=>user.uid).indexOf(message.from)
-console.log('index of sender',indexofmessagesender);
+// console.log('index of sender',indexofmessagesender);
         if(indexofmessagesender != -1){
           const sendersocket=onlineusers[indexofmessagesender].soketid
 
-          console.log('sender socket id',sendersocket);
-          socket.to(sendersocket).emit('delivered',{message:'delivered'})
+          // console.log('sender socket id',sendersocket);
+          // socket.to(sendersocket).emit('delivered',{message:'delivered'})
           response({chatmessagetomarkasviewed,chatlist})
 
         }
