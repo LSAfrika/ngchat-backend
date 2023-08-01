@@ -190,6 +190,9 @@ const useroniline=(socket)=>{
         await finduserchat.save()
       }
 
+
+      const messagesenderchatlist= await userchatsmodel.find({chatparticipants:{$all:[message.from],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+      .populate({path:'chatparticipants',select:'profileimg username chatupdate  online lastseen status'})
       const messagepayload={
         from:createnewmessage.from,
         message:createnewmessage.message,
@@ -197,9 +200,20 @@ const useroniline=(socket)=>{
         viewed:createnewmessage.viewed,
         _id:createnewmessage._id
       }
- 
 
-    response({sent:messagepayload})
+      messagesenderchatlist.forEach(chat=>{
+    const  participantindex=  chat.chatparticipants.map(p=>p._id.toString()).indexOf(message.from)
+    const  unreadcounterindex=  chat.unreadcounter.map(p=>p.userid).indexOf(message.from)
+
+
+    if(participantindex !=-1) chat.chatparticipants.splice(participantindex,1)
+    if(unreadcounterindex ==0) chat.unreadcounter.splice(1,1)
+    if(unreadcounterindex ==1) chat.unreadcounter.splice(0,1)
+    
+      })
+ console.log('filtered chatlist',messagesenderchatlist);
+
+    response({sent:messagepayload,userchats:messagesenderchatlist})
 
   }
 
