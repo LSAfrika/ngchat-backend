@@ -96,7 +96,15 @@ exports.fetchsinglechat=async(req,res)=>{
   try{
     const {userid}=req.body
     const {chatingwith}=req.params
-    const alluserchats = await messagesmodel.find({chatparticipants:{$all:[userid,chatingwith],$size:2}}).select('message from viewed createdAt ')
+    const {pagination}=req.query
+    returnsize=20
+    console.log('pagination counter: ',pagination);
+    const alluserchats = await messagesmodel.find({chatparticipants:{$all:[userid,chatingwith],$size:2}})
+     .sort({createdAt:-1})
+     .skip(pagination*returnsize)
+    
+      .limit(returnsize)
+    .select('message from viewed createdAt ')
     // .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
     if(alluserchats.length==0) return res.send(alluserchats)
@@ -110,7 +118,7 @@ exports.fetchsinglechat=async(req,res)=>{
 
 // console.log('current user ',userid);
 
-    res.send({chats:alluserchats})
+    res.send({chats:alluserchats.reverse()})
 
    }
     catch (error) {
