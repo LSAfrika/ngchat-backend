@@ -125,13 +125,17 @@ const useroniline=(socket)=>{
         }
    
 
-      response({sent:messagepayload})
+      // response({sent:messagepayload})
      
-      const userschatslist = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+
+      const senderuserschatslist = await userchatsmodel.find({chatparticipants:{$all:[message.from],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+      .populate({path:'chatparticipants',select:'_id profileimg username  online lastseen status'})
+
+      const receiveruserschatslist = await userchatsmodel.find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
       .populate({path:'chatparticipants',select:'_id profileimg username  online lastseen status'})
 
   // console.log('current user chat list: \n',updateduserchats);
-  userschatslist.forEach((user)=>{
+  receiveruserschatslist.forEach((user)=>{
   
         
       
@@ -149,10 +153,25 @@ const useroniline=(socket)=>{
         
         })
 
+  senderuserschatslist.forEach((user) => {
+    const currentuserindexchatparticipantarray = user.chatparticipants
+      .map((chatter) => chatter._id.toString())
+      .indexOf(message.from);
+    const senderindexunreadcounterarray = user.unreadcounter
+      .map((chatter) => chatter.userid)
+      .indexOf(message.to);
+    // console.log('recepient unread counter position');
+
+    user.chatparticipants.splice(currentuserindexchatparticipantarray, 1);
+    user.unreadcounter.splice(senderindexunreadcounterarray, 1);
+  });
+
       //  console.log('current user in array',userschatslist);
+    response({sent:messagepayload,userchats:senderuserschatslist})
+      
 
         socket.to(onlineuser).emit('message-received',messagepayload)
-        return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',userschatslist})
+        return  await socket.to(onlineuser).emit('chatlist-update',{message:'message sent',receiveruserschatslist})
          
       }
 
