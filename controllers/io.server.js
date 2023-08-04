@@ -88,13 +88,15 @@ const useroniline=(socket)=>{
           {message:message.message,
           from:message.from,
           viewed:message.viewed,
-          chatparticipants:[message.from,message.to]  
+          chatparticipants:[message.from,message.to] 
+           
         })
         if(finduserchat==null) {
           await userchatsmodel.create({
             chatparticipants:[message.from,message.to],
             lastmessage:createnewmessage.message,
-            unreadcounter:[{userid:message.from,count:0},{userid:message.to,count:1}]
+            unreadcounter:[{userid:message.from,count:0},{userid:message.to,count:1}],
+            userdelete:[]
 
           })
         }
@@ -110,6 +112,7 @@ const useroniline=(socket)=>{
         finduserchat.unreadcounter[fromid_index].count=0
         finduserchat.unreadcounter[toid_index].count=finduserchat.unreadcounter[toid_index].count+1
         // console.log('message to save',finduserchat);
+        finduserchat.userdelete=[]
         await finduserchat.save()}
 
         console.log('user to send message to',onlineusers[userindex]);
@@ -191,7 +194,7 @@ const useroniline=(socket)=>{
          await userchatsmodel.create({
         chatparticipants:[message.from,message.to],
         lastmessage:createnewmessage.message,
-        
+        userdelete:[],        
         unreadcounter:[{userid:message.from,count:0},{userid:message.to,count:1}]
       })
     }
@@ -205,7 +208,7 @@ const useroniline=(socket)=>{
 
         finduserchat.unreadcounter[fromid_index].count=0
         finduserchat.unreadcounter[toid_index].count=finduserchat.unreadcounter[toid_index].count+1
-
+finduserchat.userdelete=[]
         await finduserchat.save()
       }
 

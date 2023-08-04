@@ -11,8 +11,16 @@ exports.fetchallchats=async(req,res)=>{
     let userschats=[]
     let chatcounter=0
     const {userid}=req.body
-    const alluserchats = await userchatsmodel.find({chatparticipants:{$all:[userid],$size:2}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
-    .populate({path:'chatparticipants',select:'profileimg username chatupdate  online lastseen status'})
+    const alluserchats = await userchatsmodel.find({
+      chatparticipants:{$all:[userid],$size:2},
+      userdelete:{$nin:[userid]}
+    })
+    .sort({chatupdate:-1})
+    .select('chatupdate unreadcounter chatparticipants lastmessage userdelete')
+    .populate({
+      path:'chatparticipants',
+      select:'profileimg username chatupdate  online lastseen status'
+    })
 
    
 
@@ -99,7 +107,10 @@ exports.fetchsinglechat=async(req,res)=>{
     const {pagination}=req.query
     returnsize=20
     console.log('pagination counter: ',pagination);
-    const alluserchats = await messagesmodel.find({chatparticipants:{$all:[userid,chatingwith],$size:2}})
+    const alluserchats = await messagesmodel.find({
+      chatparticipants:{$all:[userid,chatingwith],$size:2},
+       deletechat:{$nin:[userid]}
+    })
      .sort({createdAt:-1})
      .skip(pagination*returnsize)
     
@@ -128,6 +139,49 @@ exports.fetchsinglechat=async(req,res)=>{
 
 
     }
+
+}
+
+exports.deletechatthread=async(req,res)=>{
+  try {
+    const {userid}=req.body
+
+    const {chatingwith}=req.params
+
+    const alluserchatmessages = await messagesmodel.find({
+      chatparticipants:{$all:[userid,chatingwith],$size:2},
+      //  deletechat:{$nin:[userid]}
+    
+    
+    })
+
+    const currentchat=await userchatsmodel.findOne({chatparticipants:{$all:[userid,chatingwith],$size:2}})
+
+    console.log(currentchat);
+
+if(currentchat !=null){
+
+  // currentchat.userdelete=[]
+  indexofuser=currentchat.userdelete.indexOf(userid)
+  if(indexofuser ==-1) currentchat.userdelete.push(userid), 
+  await currentchat.save()
+}
+    alluserchatmessages.forEach(async(chat)=>{
+      //* RESET UNREAD ARRAY TO EMPTY
+      // chat.deletechat=[]
+
+      //* ADD UNREAD ARRAY
+  indexofuser=chat.deletechat.indexOf(userid)
+  if(indexofuser ==-1)  chat.deletechat.push(userid)
+      await chat.save()
+    })
+
+    res.send({userid,chatingwith,alluserchatmessages,currentchat})
+    // res.send({userid,chatingwith,threadlength:alluserchats.length,alluserchats})
+    
+  } catch (error) {
+    console.log('error in chat deletion logic: ',error);
+  }
 
 }
 
