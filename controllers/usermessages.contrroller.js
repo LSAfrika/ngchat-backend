@@ -200,20 +200,6 @@ exports.updateviewedchats=async(req,res)=>{
 
 }
 
-exports.deletechat=async(req,res)=>{
-
-  try{
-
-  }
-   catch (error) {
-
-     console.log('registering new user error:\n',error)
-       return res.status(500).send({errormessage:error.message,servermessage:'an error occured'})
-
-
-   }
-
-}
 
 exports.unreadcounter=async(req,res)=>{
 
