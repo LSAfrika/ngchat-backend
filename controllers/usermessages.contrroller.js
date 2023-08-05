@@ -118,7 +118,7 @@ exports.fetchsinglechat=async(req,res)=>{
     .select('message from viewed createdAt ')
     // .populate({path:'chatparticipants',select:'profileimg username chatupdate'})
 
-    if(alluserchats.length==0) return res.send(alluserchats)
+    if(alluserchats.length==0) return res.send({chats:alluserchats})
 //  console.log('current chatters',alluserchats);
 //  alluserchats.forEach((user)=>{
   
