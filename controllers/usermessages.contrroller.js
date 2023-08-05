@@ -161,22 +161,27 @@ exports.deletechatthread=async(req,res)=>{
 
 if(currentchat !=null){
 
-  // currentchat.userdelete=[]
+  //  currentchat.userdelete=[]
+
   indexofuser=currentchat.userdelete.indexOf(userid)
+  indexofuserunreadcounter=currentchat.unreadcounter.map(u=>u.userid).indexOf(userid)
+if(indexofuserunreadcounter !=-1)currentchat.unreadcounter[indexofuserunreadcounter].count=0
   if(indexofuser ==-1) currentchat.userdelete.push(userid), 
   await currentchat.save()
 }
     alluserchatmessages.forEach(async(chat)=>{
       //* RESET UNREAD ARRAY TO EMPTY
-      // chat.deletechat=[]
+     
+    //  chat.deletechat=[]
 
       //* ADD UNREAD ARRAY
-  indexofuser=chat.deletechat.indexOf(userid)
+
+   indexofuser=chat.deletechat.indexOf(userid)
   if(indexofuser ==-1)  chat.deletechat.push(userid)
       await chat.save()
     })
 
-    res.send({userid,chatingwith,alluserchatmessages,currentchat})
+    res.send({messge:'succesfully deleted threads'})
     // res.send({userid,chatingwith,threadlength:alluserchats.length,alluserchats})
     
   } catch (error) {
