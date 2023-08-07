@@ -220,7 +220,7 @@ exports.getusers=async(req,res)=>{
 //todo filter logedin user .find({_id:{$ne:userid}})
     
     const users = await usermodel.find(search).find({_id:{$ne:userid}})
-    .select('username profileimg online ')
+    .select('username profileimg online lastseen ')
     .sort({username:1})
     .limit(pagination*datasize)
       return res.send({users})
