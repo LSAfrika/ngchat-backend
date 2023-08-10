@@ -228,7 +228,11 @@ exports.sendmessage=(socket,onlineusers)=>{
         }
 
         const chatlist= await userchatsmodel.
-        find({chatparticipants:{$all:[message.to],$size:2}}).sort({chatupdate:-1}).
+        find({
+          chatparticipants:{$all:[message.to],$size:2},
+          userdelete:{$nin:[message.to]}
+        })
+          .sort({chatupdate:-1}).
         populate({path:'chatparticipants',select:'lastseen online  profileimg status username'})
 
 
