@@ -7,6 +7,7 @@ const{messagereceived,sendmessage}=require('./io.messaging')
 
 module.exports = (server)=> {
 
+  let onlineusers=[]
 
   async function newusermiddlware(socket,next){
 
@@ -22,11 +23,15 @@ module.exports = (server)=> {
         useronline.online=true
         await useronline.save()
 
-          const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
-          onlineusers=newuserlist
+          // const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
+          indexofconnectingsocket=onlineusers.map(user=>user.uid).indexOf(socket.handshake.query.uid)
+          if(indexofconnectingsocket !=-1)onlineusers.splice(indexofconnectingsocket,1)
+          // onlineusers=newuserlist
           const onlineuser={soketid:socket.id,uid:socket.handshake.query.uid}
           onlineusers.push(onlineuser)
-           console.log('current online user(s):\n',onlineusers);
+
+        
+          //  console.log('current online user(s):\n',onlineusers);
           next();
 
       }
@@ -37,9 +42,8 @@ module.exports = (server)=> {
       }
     }
 
-  let onlineusers=[]
 
-  const io = require("socket.io")(server,{pingTimeout:120000, cors:{origin:['http://localhost:4200']}});
+  const io = require("socket.io")(server,{ cors:{origin:['http://localhost:4200']}});
 
 
 
@@ -47,13 +51,15 @@ module.exports = (server)=> {
 
 
   io.use(newusermiddlware).on("connection", async(socket) => {
+
+    console.log('global online users:',onlineusers);
     sendmessage(socket,onlineusers)
     disconnect(socket,onlineusers) 
     
     logout(socket,onlineusers)
     
     login(socket,onlineusers)
-    messagereceived(socket)
+    messagereceived(socket,onlineusers)
     //sernotifications(socket)
 
 

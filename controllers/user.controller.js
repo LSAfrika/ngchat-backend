@@ -11,7 +11,7 @@ exports.register=async(req,res)=>{
 
 
 
-        const finduser = await usermodel.findOne({email:email})
+        const finduser = await usermodel.findOne({email:email.toLowerCase()})
         if(finduser){
           return  res.status(409).send({message: 'email already exists'})
         }
@@ -24,7 +24,7 @@ exports.register=async(req,res)=>{
         console.log('hash password: ',hash);
        const newuser = new usermodel({
 
-        email,
+        email:email.toLowerCase(),
         username,
         password:hash,
         fovoritecontacts:[]
@@ -71,8 +71,8 @@ exports.login=async (req,res)=>{
 
     try {
         const {email,password}=req.body
-        // console.log(email,password);
-        const finduser = await usermodel.findOne({email:email})
+         console.log(email,password);
+        const finduser = await usermodel.findOne({email:email.toLowerCase()})
         if(!finduser){
           return  res.status(404).send({message: 'please check email and password'})
         }
@@ -99,7 +99,7 @@ exports.login=async (req,res)=>{
          })
       
          const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
-           expiresIn:'1m',issuer:'http://localhost:3000'
+           expiresIn:'30d',issuer:'http://localhost:3000'
          })
       
          console.log(`${payload.username} has successfully loged in`)

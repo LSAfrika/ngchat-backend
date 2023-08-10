@@ -38,7 +38,7 @@ return user
 
 
 })
-console.log('all user chats: ',filterchatlist);
+//console.log('all user chats: ',filterchatlist);
 return res.send(alluserchats)
 
 
@@ -85,8 +85,8 @@ exports.resetunreadchatcounter=async(req,res)=>{
       readcounter++
       if(readcounter>=unreadmessages.length){
         const userchat=  await userchatsmodel.findOne({chatparticipants:{$all:[userid,chatparticipantid],$size:2}})
-        console.log('user chat model',userchat);
-        console.log('user chat model unread counter',userchat.unreadcounter);
+      //  console.log('user chat model',userchat);
+       // console.log('user chat model unread counter',userchat.unreadcounter);
     
         res.send({message:'all messages viewed and chat model updated'})
       }
