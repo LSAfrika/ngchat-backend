@@ -7,7 +7,7 @@ require('dotenv').config()
 exports.register=async(req,res)=>{
 
     try {
-        const {email,username,password,reenterpassword}=req.body
+        const {email,username,password,confirmpassword}=req.body
 
 
 
@@ -15,7 +15,7 @@ exports.register=async(req,res)=>{
         if(finduser){
           return  res.status(409).send({message: 'email already exists'})
         }
-        if(password!==reenterpassword){
+        if(password!==confirmpassword){
             return res.status(500).send('password are not similar')
         }
 
@@ -45,7 +45,7 @@ exports.register=async(req,res)=>{
       expiresIn: '1w' ,issuer:'http://localhost:3000'
    })
 
-   const refreshtoken=JWT.sign({  _id:userresponse._id},process.env.REFRESHTOKEN,{
+   const refreshtoken=JWT.sign({  _id:userresponse._id},process.env.REFRESHKEY,{
      expiresIn:'1m'
    })
 
@@ -66,6 +66,7 @@ exports.register=async(req,res)=>{
     }
 
 }
+
 
 exports.login=async (req,res)=>{
 
@@ -98,7 +99,7 @@ exports.login=async (req,res)=>{
             expiresIn: '1w' ,issuer:'http://localhost:3000'
          })
       
-         const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+         const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHKEY,{
            expiresIn:'30d',issuer:'http://localhost:3000'
          })
       
@@ -113,6 +114,22 @@ exports.login=async (req,res)=>{
     }
 
 
+}
+exports.logout=async(req,res)=>{
+  try {
+    const {userid}=req.body
+    const user=await usermodel.findById({_id:userid})
+    if(user==null) return res.status(404).send({exceptionmessage:'no user found'})
+user.online=false
+await user.save()
+res.send('user logedout successfully')
+
+
+
+  } catch (error) {
+    console.log('error at logout controller \n',error.message);
+    res.send({errmessage:error.message})
+  }
 }
 
 exports.sociallogin=async (req,res)=>{

@@ -68,13 +68,13 @@ exports.authentication=async(req,res,next)=>{
 
       const reqtoken = req.headers.authorization;
 
-      // console.log(reqtoken);
+      //console.log(reqtoken);
 
       const token = reqtoken.split(" ")[1];
       //  console.log(token);
        decodedtoken =await jwt.decode(token);
 
-      //  console.log('decoded token: ',decodedtoken);
+    //    console.log('decoded token: ',decodedtoken);
       const verified = await jwt.verify(token, process.env.HASHKEY);
 
       // console.log(('VERIFIED TOKEN:',verified));

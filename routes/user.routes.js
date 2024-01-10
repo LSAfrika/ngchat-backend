@@ -1,11 +1,12 @@
 const express=require('express')
 const router= express.Router()
-const{register,login,sociallogin,getusers,getuser,updateuser,totalusers,getpersonalcontactlist,addpersonalcontactlist}=require('../controllers/user.controller')
+const{register,login,logout,sociallogin,getusers,getuser,updateuser,totalusers,getpersonalcontactlist,addpersonalcontactlist}=require('../controllers/user.controller')
 const{authentication,refreshtoken}=require('../middleware/auth.middleware')
 
 router.post('/register',register)
 
 router.post('/login',login)
+router.post('/logout',authentication,logout)
 router.post('/socialogin',sociallogin)
 router.get('/allusers',authentication,getusers)
 router.get('/personalusers',authentication,getpersonalcontactlist)

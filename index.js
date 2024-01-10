@@ -7,7 +7,6 @@ const expressuploader=require('express-fileupload')
 
 const LocalDBconnection =`mongodb://localhost:27017/ngchat`
 const PORT=process.env.PORT || 3000
-
 app.use(cors('*'))
 app.use(express.json())
 app.use(express.urlencoded({extended:true}));
