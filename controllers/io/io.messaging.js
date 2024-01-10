@@ -163,7 +163,7 @@ exports.sendmessage=(socket,onlineusers)=>{
        }
  
  
-       const messagesenderchatlist= await userchatsmodel.find({chatparticipants:{$all:[message.from],$size:2},userdelete:{$nin:[message.from]}}).sort({chatupdate:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
+       const messagesenderchatlist= await userchatsmodel.find({chatparticipants:{$all:[message.from],$size:2},userdelete:{$nin:[message.from]}}).sort({updatedAt:-1}).select('chatupdate unreadcounter chatparticipants lastmessage ')
        .populate({path:'chatparticipants',select:'profileimg username chatupdate  online lastseen status'})
        const messagepayload={
          from:createnewmessage.from,
@@ -172,6 +172,8 @@ exports.sendmessage=(socket,onlineusers)=>{
          viewed:createnewmessage.viewed,
          _id:createnewmessage._id
        }
+
+       console.log(messagesenderchatlist)
  
        messagesenderchatlist.forEach(chat=>{
      const  participantindex=  chat.chatparticipants.map(p=>p._id.toString()).indexOf(message.from)

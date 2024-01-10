@@ -20,9 +20,10 @@ module.exports = (server)=> {
 
           }
         const useronline=  await usermodel.findById(socket.handshake.query.uid)
+
         useronline.online=true
         await useronline.save()
-
+console.log('logged in user: \n',useronline);
           // const newuserlist=    onlineusers.filter(user=>user.uid!==socket.handshake.query.uid)
           indexofconnectingsocket=onlineusers.map(user=>user.uid).indexOf(socket.handshake.query.uid)
           if(indexofconnectingsocket !=-1)onlineusers.splice(indexofconnectingsocket,1)

@@ -84,6 +84,8 @@ exports.login=async (req,res)=>{
             return res.status(500).send({message:'please check email and password'})
          }
 
+         finduser.online=true
+         await finduser.save()
          const payload ={
              _id:finduser._id,
              email:finduser.email,
@@ -165,7 +167,7 @@ exports.sociallogin=async (req,res)=>{
        expiresIn: '1w' ,issuer:'http://localhost:3000'
     })
 
-    const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+    const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHKEY,{
       expiresIn:'1m'
     })
     console.log(`${payload.username} has successfully loged in`)
@@ -186,7 +188,7 @@ exports.sociallogin=async (req,res)=>{
         expiresIn: '7d' ,issuer:'localhost:3000'
      })
 
-     const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+     const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHKEY,{
       expiresIn:'30d'
     })
       return res.send({message:`welcome back ${name}`,token,refreshtoken})
@@ -330,7 +332,7 @@ const token = JWT.sign(payload,process.env.HASHKEY,{
 })
 // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
 
-const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHKEY,{
   expiresIn:'3d'
 })
 
@@ -368,7 +370,7 @@ const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
   })
   // console.log('REFRESH: ',process.env.REFRESH_TOKEN);
 
-  const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHTOKEN,{
+  const refreshtoken=JWT.sign({  _id:payload._id},process.env.REFRESHKEY,{
     expiresIn:'3d'
   })
 
